@@ -179,7 +179,7 @@ export default function ClinicMap({ onOpen }: { onOpen: (clinicId: string) => vo
               <div
                 ref={pinchBoxRef}
                 className="overflow-auto overscroll-contain"
-                style={{ maxHeight: "34rem", touchAction: "pan-x pan-y" }}
+                style={{ maxHeight: "clamp(20rem, 50vh, 34rem)", touchAction: "pan-x pan-y" }}
                 onClick={() => setPickedId(null)}
               >
                 <div
@@ -197,13 +197,23 @@ export default function ClinicMap({ onOpen }: { onOpen: (clinicId: string) => vo
                     const j = offsets.get(c.id) ?? { dx: 0, dy: 0 };
                     const on = c.id === pickedId;
                     const best = cheapest(c.id);
+                    // 지도 아래쪽·가장자리 핀은 카드를 점 밑/가운데에 그대로 두면 상자 밖으로
+                    // 나가 폰에서 아예 안 보였다. 아래쪽 핀은 위로 띄우고, 좌우 끝 핀은
+                    // 그 쪽 모서리에 붙여서 항상 지도 안에 들어오게 한다.
+                    const px = pos.x + j.dx;
+                    const py = pos.y + j.dy;
+                    const place = `${py > 55 ? "bottom-full mb-2" : "top-full mt-2"} ${
+                      px > 72 ? "right-0" : px < 28 ? "left-0" : "left-1/2 -translate-x-1/2"
+                    }`;
                     return (
                       // 핀과 그 밑 정보 카드를 같은 좌표에 둘 상자. 정보 카드 안에 "상세보기"
                       // 버튼이 있어서, 핀 자체를 button으로 두면 button 안에 button이 들어가
                       // 버린다(HTML에서 금지 — 실제로 하이드레이션 에러가 났다).
                       <div
                         key={c.id}
-                        className="absolute -translate-x-1/2 -translate-y-1/2"
+                        // translate가 쌓임 맥락을 만들어서, 카드 안쪽의 z-30이 이 상자 밖
+                        // 다른 핀들을 못 이긴다(카드 위로 핀이 덮였다). 고른 핀 상자 자체를 올린다.
+                        className={`absolute -translate-x-1/2 -translate-y-1/2 ${on ? "z-30" : ""}`}
                         style={{ left: `${pos.x + j.dx}%`, top: `${pos.y + j.dy}%` }}
                       >
                         <button
@@ -225,7 +235,7 @@ export default function ClinicMap({ onOpen }: { onOpen: (clinicId: string) => vo
                         {on && (
                           <div
                             onClick={(e) => e.stopPropagation()}
-                            className="animate-pop absolute left-1/2 top-full z-30 mt-2 w-48 -translate-x-1/2 rounded-cell bg-white p-3 text-left shadow-float hairline"
+                            className={`animate-pop absolute z-30 w-44 max-w-[60vw] rounded-cell bg-white p-3 text-left shadow-float hairline ${place}`}
                           >
                             <div className="truncate text-sm font-bold text-ink">
                               {t(c.name)}
@@ -321,7 +331,7 @@ export default function ClinicMap({ onOpen }: { onOpen: (clinicId: string) => vo
               <div
                 ref={pinchBoxRef}
                 className="overflow-auto overscroll-contain"
-                style={{ maxHeight: "34rem", touchAction: "pan-x pan-y" }}
+                style={{ maxHeight: "clamp(20rem, 50vh, 34rem)", touchAction: "pan-x pan-y" }}
               >
                 <div
                   className="relative"
