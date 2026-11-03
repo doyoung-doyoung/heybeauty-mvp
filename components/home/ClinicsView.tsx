@@ -358,24 +358,28 @@ export default function ClinicsView({
         ))}
       </div>
 
-      <GlassCard
-        key={category}
-        className="animate-pop overflow-hidden bg-gradient-to-br from-hb-50/80 to-hb-200/50 p-6"
-      >
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="min-w-0">
-            <div className="text-xs font-semibold tracking-widest text-hb-600">
-              {isMap ? "MAP" : isAll ? "ALL" : categoryLabel.toUpperCase()}
+      {/* 지도 화면에선 이 소개 카드가 지도를 화면 밖으로 밀어낸다(폰에서 지도가 아예 안 보였다).
+          지도 자체에 방콕/태국 전환과 안내 문구가 이미 있어서 없어도 된다. */}
+      {!isMap && (
+        <GlassCard
+          key={category}
+          className="animate-pop overflow-hidden bg-gradient-to-br from-hb-50/80 to-hb-200/50 p-6"
+        >
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-xs font-semibold tracking-widest text-hb-600">
+                {isAll ? "ALL" : categoryLabel.toUpperCase()}
+              </div>
+              <h2 className="mt-1 text-2xl font-bold">{categoryLabel}</h2>
+              <p className="mt-1.5 max-w-xl text-sm text-ink/70">{categoryDesc}</p>
             </div>
-            <h2 className="mt-1 text-2xl font-bold">{categoryLabel}</h2>
-            <p className="mt-1.5 max-w-xl text-sm text-ink/70">{categoryDesc}</p>
+            <div className="text-right">
+              <div className="text-3xl font-black tabular-nums">{clinics.length}</div>
+              <div className="text-xs text-ink-sub">{t("clinicCount")}</div>
+            </div>
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-black tabular-nums">{clinics.length}</div>
-            <div className="text-xs text-ink-sub">{t("clinicCount")}</div>
-          </div>
-        </div>
-      </GlassCard>
+        </GlassCard>
+      )}
 
       {isMap && <ClinicMap onOpen={(id) => setOpenId(id)} />}
 
